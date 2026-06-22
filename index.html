@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deltaworks.studio</title>
+<meta name="description" content="form and clarity. Where engineering and design converge.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--void:#06090a; --signal:#4fe6dd; --bright:#7ff0e8; --core:#dffbf6; --deep:#159a90;
+    --mono:"JetBrains Mono",ui-monospace,monospace; --sans:"Space Grotesk",system-ui,sans-serif;
+    --wordmark:"Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:46px; text-align:center; padding:64px 32px 120px; position:relative; overflow:hidden; background:var(--void); background-image:radial-gradient(120% 70% at 50% 44%, rgba(40,165,153,.10) 0%, rgba(15,82,78,.04) 36%, rgba(6,9,10,0) 66%); color:#c3d0ce; font-family:var(--sans); font-weight:300;}
+  .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 100% at 50% 46%, rgba(0,0,0,0) 48%, rgba(0,0,0,.7) 100%);}
+  .mark{animation:breathe 5s ease-in-out infinite; filter:drop-shadow(0 0 6px var(--bright)) drop-shadow(0 0 18px var(--signal)) drop-shadow(0 0 42px var(--deep)); position:relative;}
+  @keyframes breathe{0%,100%{opacity:.9;transform:scale(1);}50%{opacity:1;transform:scale(1.015);}}
+  .domain{position:relative; font-family:var(--wordmark); font-weight:500; font-size:clamp(34px,7vw,56px); letter-spacing:.04em; color:var(--core); text-shadow:0 0 16px rgba(79,230,221,.3),0 0 44px rgba(21,154,144,.32);}
+  .domain .tld{color:var(--signal);}
+  .tagline{position:relative; font-size:clamp(15px,2.3vw,22px); letter-spacing:.5em; text-transform:lowercase; color:rgba(159,212,206,.78); padding-left:.5em;}
+  .cipher{position:relative; display:flex; align-items:center; gap:clamp(16px,3.4vw,30px); transition:transform .25s ease;}
+  .cipher.lock{transform:scale(1.07);}
+  .cell{font-family:var(--mono); font-size:clamp(30px,6.4vw,46px); width:1.1em; text-align:center; color:rgba(143,225,219,.6); text-shadow:0 0 14px var(--deep); font-variant-numeric:tabular-nums; transition:color .25s ease, text-shadow .25s ease;}
+  .cipher.lock .cell{color:var(--core); text-shadow:0 0 14px var(--bright), 0 0 34px var(--signal), 0 0 60px var(--deep);}
+  .sep{font-family:var(--mono); font-size:clamp(30px,6.4vw,46px); color:rgba(79,230,221,.22); line-height:1; transition:color .25s ease;}
+  .cipher.lock .sep{color:rgba(127,240,232,.7);}
+  .verdict{position:relative; height:16px; margin-top:-26px; font-family:var(--mono); font-size:12px; letter-spacing:.42em; text-transform:uppercase; color:rgba(127,240,232,.9); opacity:0; transition:opacity .3s ease; padding-left:.42em; text-shadow:0 0 14px var(--deep);}
+  .verdict.show{opacity:1;}
+  .home{position:absolute; left:0; right:0; bottom:34px; display:flex; align-items:center; justify-content:center; gap:14px; text-decoration:none; opacity:.55; transition:opacity .2s;}
+  .home:hover{opacity:1;}
+  .home span{font-family:var(--mono); font-size:12px; letter-spacing:.18em; color:rgba(140,182,178,.8);}
+</style>
+</head>
+<body>
+  <div class="vignette"></div>
+  <div class="mark"><svg width="100" height="100" viewBox="0 0 100 100"><path d="M50 14 L86 80 L14 80 Z" fill="rgba(79,230,221,.05)" stroke="#dffbf6" stroke-width="5" stroke-linejoin="round"/></svg></div>
+  <div class="domain">deltaworks<span class="tld">.studio</span></div>
+  <div class="tagline">form and clarity</div>
+  <div class="cipher" id="cipher">
+    <span class="cell" id="c1">Ξ</span>
+    <span class="sep">·</span>
+    <span class="cell" id="c2">Λ</span>
+    <span class="sep">·</span>
+    <span class="cell" id="c3">Ω</span>
+  </div>
+  <div class="verdict" id="verdict">combination accepted</div>
+  <a class="home" href="https://deltaworks.it" title="the stack — deltaworks.it">
+    <svg width="20" height="20" viewBox="0 0 100 100" style="filter:drop-shadow(0 0 5px #159a90)"><path d="M50 14 L86 80 L14 80 Z" fill="none" stroke="#4fe6dd" stroke-width="6" stroke-linejoin="round"/></svg>
+    <span>deltaworks.it</span>
+  </a>
+<script>
+(function(){
+  /* flip MODE to 'countdown' to reveal a live H:M:S timer instead of the cipher */
+  var MODE = 'cipher';   /* 'cipher' | 'countdown' */
+  var c1=document.getElementById('c1'), c2=document.getElementById('c2'), c3=document.getElementById('c3');
+  var cipher=document.getElementById('cipher'), verdict=document.getElementById('verdict');
+  var pad=function(n){return String(n).padStart(2,'0');};
+
+  if (MODE === 'countdown') {
+    cipher.style.gap='clamp(20px,4vw,34px)';
+    var target=new Date('2026-06-22T00:00:00').getTime();
+    var tick=function(){ var diff=Math.max(0,target-Date.now());
+      var h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+      c1.textContent=pad(h); c2.textContent=pad(m); c3.textContent=pad(s);
+    }; tick(); setInterval(tick,1000);
+    return;
+  }
+
+  /* ─── the combination lock ───
+     three glyphs scramble independently; periodically they cascade-lock
+     onto T · B · A together, confirm ("combination accepted"), then release. */
+  var charset="ΞΛΩΔΣΦΨΘΠ#@%&/\\<>{}[]=+*0123456789".split('');
+  var TARGET=['T','B','A'];
+  var els=[c1,c2,c3];
+  var rnd=function(){ return charset[Math.floor(Math.random()*charset.length)]; };
+  var locked=false;
+  var scrambleTimers=[];
+
+  function startScramble(){
+    locked=false;
+    els.forEach(function(el,i){
+      scrambleTimers[i]=setInterval(function(){ if(!locked) el.textContent=rnd(); }, 95 + i*35);
+    });
+  }
+  function stopScramble(){ scrambleTimers.forEach(clearInterval); scrambleTimers=[]; }
+
+  function lockSequence(){
+    if(locked) return;
+    locked=true; stopScramble();
+    /* cascade: each cell flickers a few frames then snaps to its target */
+    els.forEach(function(el,i){
+      setTimeout(function(){
+        var n=0, total=5+Math.floor(Math.random()*4);
+        var iv=setInterval(function(){ el.textContent=rnd();
+          if(++n>=total){ clearInterval(iv); el.textContent=TARGET[i];
+            if(i===els.length-1){ confirm(); } }
+        }, 60);
+      }, i*260);
+    });
+  }
+  function confirm(){
+    cipher.classList.add('lock'); verdict.classList.add('show');
+    setTimeout(function(){
+      cipher.classList.remove('lock'); verdict.classList.remove('show');
+      setTimeout(startScramble, 350);
+    }, 1500);
+  }
+
+  startScramble();
+  function schedule(){ var wait=7000 + Math.random()*6000;
+    setTimeout(function(){ lockSequence(); setTimeout(schedule, 4500); }, wait); }
+  schedule();
+})();
+</script>
+</body>
+</html>
