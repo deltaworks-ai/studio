@@ -1,0 +1,9 @@
+
+Contact: mailto:security@deltaworks.studio
+
+Expires: 2027-06-22T00:00:00.000Z
+
+Preferred-Languages: en, nl
+
+Canonical: https://deltaworks.studio/.well-known/security.txt
+
